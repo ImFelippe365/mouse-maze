@@ -1,10 +1,22 @@
 from Stack import Stacks
 class Maze:
     def __init__(self):
-        pass
+        self.maze = None
+        self.exit_coords = {
+            'column': None,
+            'row': None,
+        }
+        self.mouse_coords = {
+            'column': None,
+            'row': None,
+        }
+
+    def showMaze(self):
+        for row_number in range(len(self.maze)):
+            print(self.maze[row_number])
 
     def mountMaze(self):
-        maze_data = open('mazze.txt', 'r')
+        maze_data = open('maze.txt', 'r')
         maze_stack = Stacks(100)
         
         for row in maze_data:
@@ -18,27 +30,37 @@ class Maze:
             maze_stack.stackUp(wall_array)
         maze_data.close()
 
-        maze = []
-        wallUpAndDown = maze_stack.getColumnsLength()*['1']
+        self.maze = []
+        wallUpAndDown1 = maze_stack.getColumnsLength()*['1']
+        wallUpAndDown2 = maze_stack.getColumnsLength()*['1']
 
-        maze.insert(0, wallUpAndDown)
         for row in range(maze_stack.getRowLength()):
-            maze.append(maze_stack.unStack())
-        maze.append(wallUpAndDown)
+            self.maze.insert(0,maze_stack.unStack())
+        self.maze.insert(0, wallUpAndDown1)
+        self.maze.append(wallUpAndDown2)
 
-        exit_coords = {
-            'row': None,
-            'column': None,
-        }
-        for row_number in range(len(maze)):
-            find_exit = ''.join(maze[row_number]).find('e')
+        for row_number in range(len(self.maze)):
+            find_exit = ''.join(self.maze[row_number]).find('e')
             if find_exit >= 0:
-                exit_coords['column'] = find_exit
-                exit_coords['row'] = row_number
+                self.exit_coords['column'] = find_exit
+                self.exit_coords['row'] = row_number
                 
-            print(maze[row_number])
-        maze[exit_coords['row']][exit_coords['column']] = 0
-        print(exit_coords)
+        self.maze[self.exit_coords['row']][self.exit_coords['column']] = '0'
+        
+        if self.exit_coords['row'] == 1:
+            self.exit_coords['row'] = self.exit_coords['row']-1
+        elif self.exit_coords['row'] == len(self.maze) - 2:
+            self.exit_coords['row'] = self.exit_coords['row']+1
+        elif self.exit_coords['column'] == 1:
+            self.exit_coords['column'] = self.exit_coords['column']-1
+        elif self.exit_coords['column'] == len(self.maze[0])-2:
+            self.exit_coords['column'] = self.exit_coords['column']+1
+        else:
+            print("Deus sabe")
+        
+        self.maze[self.exit_coords['row']][self.exit_coords['column']] = 'e'
+        self.showMaze()
+        print(self.exit_coords)
 
 mazze = Maze()
 mazze.mountMaze()
