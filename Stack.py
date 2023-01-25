@@ -7,6 +7,11 @@ class Stacks:
         self.__top = -1
         self.__values = numpy.empty(self.__capacity, dtype=list)
 
+    def getTop(self):
+        if self.__isEmpty():
+            return None
+        return self.__values[self.__top]
+
     def getRowLength(self):
         return self.__top+1
 
