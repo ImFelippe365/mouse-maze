@@ -1,7 +1,11 @@
 from stack import Stacks
+from tkinter import *
 
 class Maze:
-    def __init__(self):
+    def __init__(self, master):
+        self.master = master 
+        
+
         self.maze = None
         self.exit_coords = {
             'column': None,
@@ -12,6 +16,42 @@ class Maze:
             'row': None,
         }
         self.counter = 0
+        
+        self.mountMaze()
+    
+    def create(self): 
+        self.showMaze()
+        self.canvas = Canvas(self.master) 
+
+        squareSize = 30
+
+        for row in range(0, len(self.maze)):
+            y2RowRange = (row+1)*squareSize
+            for column in range(len(self.maze[row])):
+                column_value = self.maze[row][column]
+
+                x1ColumnRange = (column+1)*squareSize
+                x2ColumnRange = x1ColumnRange - squareSize if not column == 0 else 0
+                y1RowRange = y2RowRange - squareSize if not row == 0 else 0
+
+                print(y1RowRange, y2RowRange)
+                if (column_value == '1'):
+                    self.canvas.create_rectangle(
+                    x1ColumnRange, y1RowRange, x2ColumnRange, y2RowRange,
+                outline="blue", fill = "blue", width = 1)
+                elif (column_value == 'e'):
+                    self.canvas.create_rectangle(
+                    x1ColumnRange, y1RowRange, x2ColumnRange, y2RowRange,
+                outline="green", fill = "green", width = 1)
+                elif (column_value == 'm'):
+                    # img = PhotoImage(name="mouse", file='.\mouse.png')
+                    # self.label = Label(self.master, image=img, bd=5, relief=SUNKEN)
+                    # self.label.pack(side=RIGHT)
+                    self.canvas.create_rectangle(
+                    x1ColumnRange, y1RowRange, x2ColumnRange, y2RowRange,
+                outline="brown", fill = "brown", width = 1)
+
+        self.canvas.pack(fill = BOTH, expand = 1) 
 
     def canMoveToDown(self):
         row = self.mouse_coords['row']
@@ -221,9 +261,12 @@ class Maze:
         
         self.maze[self.exit_coords['row']][self.exit_coords['column']] = 'e'
         self.saveMousePosition()
-        self.findExit()
+        
+        self.create()
+        # self.findExit()
 
-mazze = Maze()
-mazze.mountMaze()
+root = Tk()
+mazze = Maze(root)
+root.mainloop()
 
 # FALTA ARRUMAR A CAPACIDADE DO TAMANHO DA PILHA
