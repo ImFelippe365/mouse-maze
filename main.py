@@ -1,5 +1,6 @@
 from stack import Stacks
 from tkinter import *
+import time
 
 class Maze:
     def __init__(self, master):
@@ -47,6 +48,37 @@ class Maze:
                     # img = PhotoImage(name="mouse", file='.\mouse.png')
                     # self.label = Label(self.master, image=img, bd=5, relief=SUNKEN)
                     # self.label.pack(side=RIGHT)
+                    self.mouseForm = self.canvas.create_rectangle(
+                    x1ColumnRange, y1RowRange, x2ColumnRange, y2RowRange,
+                outline="brown", fill = "brown", width = 1)
+
+        self.canvas.pack(fill = BOTH, expand = 1) 
+        
+        self.findExit()
+
+    def animateMouse(self):
+        self.showMaze()
+        self.canvas = Canvas(self.master) 
+
+        squareSize = 30
+
+        for row in range(0, len(self.maze)):
+            y2RowRange = (row+1)*squareSize
+            for column in range(len(self.maze[row])):
+                column_value = self.maze[row][column]
+
+                x1ColumnRange = (column+1)*squareSize
+                x2ColumnRange = x1ColumnRange - squareSize if not column == 0 else 0
+                y1RowRange = y2RowRange - squareSize if not row == 0 else 0
+
+                if (column_value == 'm'):
+                    # img = PhotoImage(name="mouse", file='.\mouse.png')
+                    # self.label = Label(self.master, image=img, bd=5, relief=SUNKEN)
+                    # self.label.pack(side=RIGHT)
+                    self.canvas.create_rectangle(
+                    x1ColumnRange-15, y1RowRange-15, x2ColumnRange-15, y2RowRange-15,
+                outline="white", fill = "white", width = 1)
+
                     self.canvas.create_rectangle(
                     x1ColumnRange, y1RowRange, x2ColumnRange, y2RowRange,
                 outline="brown", fill = "brown", width = 1)
@@ -192,25 +224,49 @@ class Maze:
         self.showMaze()
         self.counter += 1
         print()
+        
         if (exit_row == mouse_row and exit_column == mouse_column):
             return tries
-
         if self.canMoveToRight():
             right = self.moveToRight()
+            self.canvas.move(self.mouseForm, 30, 0)
             tries.stackUp(right)
         elif self.canMoveToLeft():
             left = self.moveToLeft()
+            self.canvas.move(self.mouseForm, -30, 0)
             tries.stackUp(left)
         elif self.canMoveToDown():
             down = self.moveToDown()
+            self.canvas.move(self.mouseForm, 0, 30)
             tries.stackUp(down)
         elif self.canMoveToUp():
             up = self.moveToUp()
+            self.canvas.move(self.mouseForm, 0, -30)
             tries.stackUp(up)
         else:
+            # ROW POSITIVO SOBE, NEGATIVO DESCE
+            # COLUNA NEGATIVA DIREITA, POSITIVO ESQUERDA
+            oldCoords = tries.getTop()
             tries.unStack()
-            self.moveMouse(tries.getTop())
+            newCoords = tries.getTop()
+            coordsDiff = {
+                'column': oldCoords['column']-newCoords['column'],
+                'row': oldCoords['row'] - newCoords['row']
+            }
+            if (coordsDiff['column'] < 0 and coordsDiff['row'] == 0):
+                self.canvas.move(self.mouseForm, 30, 0)
+            if (coordsDiff['column'] > 0 and coordsDiff['row'] == 0):
+                self.canvas.move(self.mouseForm, -30, 0)
+            if (coordsDiff['column'] == 0 and coordsDiff['row'] > 0):
+                self.canvas.move(self.mouseForm, 0, -30)
+            if (coordsDiff['column'] == 0 and coordsDiff['row'] < 0):
+                self.canvas.move(self.mouseForm, 0, 30)
+            print("NEW COORDS", coordsDiff)
+            self.moveMouse(newCoords)
         
+        # self.animateMouse()
+        self.master.update()        
+        time.sleep(0.5)
         return self.__findingExit(tries)
 
     def findExit(self):
